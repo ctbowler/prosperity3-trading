@@ -46,7 +46,7 @@ When volumes spiked or when adverse signals were present (e.g., sudden one-sided
 
 
 
-## Squid Ink Mean Reversion
+## Squid Ink Swing Trading
 - **Context:** Squid Ink prices showed erratic short-term movements but tended to revert to a moving equilibrium.
   Unlike Rainforest Resin, the Squid Ink order book was typically thin and subject to larger volatility bursts, making low volatility market making (as we did for Resin) riskier without additional filters.
 
