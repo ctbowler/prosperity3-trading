@@ -258,7 +258,7 @@ While the Black-Scholes model was effective, I believe my implementation could h
 
 
 
-## Magnificent Macarons Fair-Value Trading
+## Magnificent Macarons Regression 
 - **Context:** The price of Magnificent Macarons was linked to two environmental factors — the sunlight index and sugar price — which made it possible to estimate a rough fair value at any time.
 Instead of just reacting to price moves like in pure technical trading, I could build a model that tried to predict what macarons "should" be worth based on external data.
 The problem was that the macaron market was really illiquid, which meant sharp price jumps and big gaps in the order book happened a lot.
