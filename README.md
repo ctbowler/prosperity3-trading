@@ -36,12 +36,12 @@ $$
 </p>
 
 - **Profitability:** Rainforest Resin provided stable, low-volatility profits.
-  I was consistently able to accumulate gains through small tick-size improvements without large directional risk exposure.
+  We were consistently able to accumulate gains through small tick-size improvements without large directional risk exposure.
   In rounds with large liquidity, this strategy experienced minimal slippage and low adverse selection risk.
 
 - **Looking back:** 
 This strategy could have been further improved by introducing dynamic spread widening based on short-term volatility bursts.
-When volumes spiked or when adverse signals were present (e.g., sudden one-sided order books), I could have slightly relaxed my quotes instead of maintaining symmetric undercutting; nonetheless, the Resin market proved extremely favorable to classical low-volatility market making.
+When volumes spiked or when adverse signals were present (e.g., sudden one-sided order books), we could have slightly relaxed my quotes instead of maintaining symmetric undercutting; nonetheless, the Resin market proved extremely favorable to classical low-volatility market making.
 
 
 
@@ -120,9 +120,10 @@ Nonetheless, the EMA/volatility Z-score approach proved highly effective relativ
 ## Picnic Basket Pairs Trading
 - **Context:** Picnic Basket 1 and Picnic Basket 2 were composite assets made up of CROISSANTS, JAMS, and DJEMBES.
   The two baskets were highly correlated but constructed with slightly different component ratios, creating predictable spread dynamics.
+  Although the composite formulas were given for each basket, the data did not support the idea that their composite spreads were mean reverting; rather, the spread between their midprices served as a more useful indicator. 
   This setup was ideal for **statistical arbitrage** through mean reversion of the spread.
 
-- **Idea:** Track the historical spread between the two baskets' midprices, model the spread as a stationary process, and trade based on extreme deviations from the historical mean.
+- **Idea:**  Track the historical spread between the two baskets' midprices, model the spread as a stationary process, and trade based on extreme deviations from the historical mean.
   Adjust trade aggressiveness based on recent volatility to avoid entering during unstable periods.
 
 - **Math:**
@@ -253,4 +254,65 @@ While the Black-Scholes model was effective, I believe my implementation could h
  However, I was not able to develop an implied volatility reversion strategy that outperformed my original theoretical price-based model in terms of stability and profitability.
 
 <sub> 1: *"Appropriate" here refers to minimizing first-order exposure **under the assumptions** of the Black-Scholes model: constant volatility, continuous trading, frictionless markets, and no jumps.</sub>*
-  
+
+
+
+
+## Magnificent Macarons Fair-Value Trading
+- **Context:** The Magnificent Macarons product's fundamental value was influenced by environmental factors: the sunlight index and sugar price.
+  These features created an opportunity for fair-value based trading rather than purely technical trading.
+  However, the macarons market was highly illiquid, leading to sharp, sudden price jumps and spread gaps.
+
+- **Idea:** Perform linear regression on macarons with sugar and sunlight and estimate the theoretical fair value of macarons.
+  Enter long or short positions when the observed market mid-price significantly deviated from the fair value.
+  Use momentum slope detection to avoid trading against strong market trends during rapid moves.
+
+- **Math:**
+Fair value model (given):
+<p align="center">
+$$
+\text{FairValue}_t = -2.836 \times \text{SunlightIndex}_t + 3.327 \times \text{SugarPrice}_t + 118.173
+$$
+</p>
+
+Spread between market midprice and fair value:
+<p align="center">
+$$
+\text{Spread}_t = \text{FairValue}_t - \text{Midprice}_t
+$$
+</p>
+
+Momentum slope of 100-period rolling average:
+<p align="center">
+$$
+\text{MomentumSlope}_t = \text{MA}_{100,t} - \text{MA}_{100,t-5}
+$$
+</p>
+
+Trade triggers:
+<p align="center">
+$$
+\text{Spread}_t > \text{Threshold} \text{ and momentum slope} < 0  \text{ → **Long Macarons**}
+$$
+$$
+\text{Spread}_t < -\text{Threshold} \text{ and momentum slope}  > 0 \text{ → **Short Macarons**}
+$$
+</p>
+Threshold dynamically adjusted based on recent volatility and position.
+
+
+- **Profitability:**  
+The macarons fair-value strategy worked well when sunlight or sugar shocks caused clear mispricings in the market.
+Most profits came from simple mean-reversion back to the fair value after temporary moves.
+The strategy performed best when momentum signals helped avoid chasing into big breakouts.
+However, low liquidity sometimes made it hard to get good fills, and exits during volatile periods occasionally caused slippage.
+In some cases, strong-looking momentum was actually just noise, and the strategy entered positions right before major breakouts, causing noticeable losses.
+
+- **Looking back:**  
+One of the biggest challenges was assuming the fair value model always held in the short term.
+During illiquid periods, market prices could drift far from fair value just because of order book imbalances, not real mispricing.
+In the future, using extra filters like bid-ask volume imbalance or recent trade flow pressure could help avoid bad entries.
+Also, scaling position sizes based on how far the market was from fair value — instead of treating every signal the same — might have helped reduce losses on weaker signals.
+Overall, despite some missteps around breakout events, the fair-value plus momentum approach was very effective for trading macarons most of the time.
+
+
