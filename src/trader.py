@@ -52,7 +52,8 @@ class Trader:
             "VOLCANIC_ROCK_VOUCHER_10250": 200,
             "VOLCANIC_ROCK_VOUCHER_10500": 200,
         }
-
+    
+    # This specific function was created by: https://github.com/ShubhamAnandJain/IMC-Prosperity-2023-Stanford-Cardinal
     def values_extract(self, order_dict, buy=0):
         tot_vol = 0
         best_val = -1
