@@ -4,8 +4,178 @@
 
 # Strategies
 ## Rainforest Resin Market Making
-## Squid Ink Mean Reversion 
+- **Context:** Rainforest Resin was an extremely stable product and appeared to have minimal external shocks, which allowed us to deduce a low volatility market making strategy.
+  The bid-ask spreads were tight but consistent, and exhibited relatively symmetric order book dynamics.
+
+- **Idea:** Maintain inventory neutrality by passively posting limit orders slightly inside the natural bid-ask spread.
+  Dynamically adjust quoting behavior based on inventory imbalances, becoming more aggressive when heavily long or short.
+
+- **Math:**
+Mid-price estimation:
+<p align="center">
+$$
+\text{Midprice} = \frac{\text{Best Bid} + \text{Best Ask}}{2}
+$$
+</p>
+
+Undercutting the spread to improve fill probability:
+<p align="center">
+$$
+\text{Improved Bid} = \text{Best Bid} + 1 
+$$
+$$
+\text{Improved Ask} = \text{Best Ask} - 1
+$$
+</p>
+
+Inventory risk adjustment based on position:
+<p align="center">
+$$
+\text{Target Spread} \propto -\text{Inventory}
+$$
+</p>
+
+- **Profitability:** Rainforest Resin provided stable, low-volatility profits.
+  I was consistently able to accumulate gains through small tick-size improvements without large directional risk exposure.
+  In rounds with large liquidity, this strategy experienced minimal slippage and low adverse selection risk.
+
+- **Looking back:** 
+This strategy could have been further improved by introducing dynamic spread widening based on short-term volatility bursts.
+When volumes spiked or when adverse signals were present (e.g., sudden one-sided order books), I could have slightly relaxed my quotes instead of maintaining symmetric undercutting; nonetheless, the Resin market proved extremely favorable to classical low-volatility market making.
+
+
+
+
+## Squid Ink Mean Reversion
+- **Context:** Squid Ink prices showed erratic short-term movements but tended to revert to a moving equilibrium.
+  Unlike Rainforest Resin, the Squid Ink order book was typically thin and subject to larger volatility bursts, making low volatility market making (as we did for Resin) riskier without additional filters.
+
+- **Idea:** Compute the rolling Exponential Moving Average (EMA) and rolling volatility of mid-prices.
+  Enter trades based on Z-score deviations between current price and EMA, but exit early on momentum shifts to avoid losses from strong breakouts.
+
+- **Math:**
+Mid-price calculation:
+<p align="center">
+$$
+\text{Midprice}_t = \frac{\text{Best Bid}_t + \text{Best Ask}_t}{2}
+$$
+</p>
+
+EMA of midprices (span $n$):
+<p align="center">
+$$
+\text{EMA}_t = \alpha \times \text{Midprice}_t + (1 - \alpha) \times \text{EMA}_{t-1}
+$$
+</p>
+where
+<p align="center">
+$$
+\alpha = \frac{2}{n+1}
+$$
+</p>
+
+Rolling volatility:
+<p align="center">
+$$
+\sigma_t = \sqrt{\frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})^2}
+$$
+</p>
+
+Z-score trading signal:
+<p align="center">
+$$
+z_t = \frac{\text{Midprice}_t - \text{EMA}_t}{\sigma_t}
+$$
+</p>
+
+Trade triggers:
+<p align="center">
+$$
+z_t > \text{threshold} \text{ → Short Squid Ink}
+$$
+
+$$
+ z_t < -\text{threshold} \text{ → Long Squid Ink}
+$$
+</p>
+Exit on Z-score crossing zero or on momentum reversal.
+
+- **Profitability:**  
+This strategy performed strongly in moderately volatile conditions.
+The majority of profits came from mean-reversion after overextensions, especially during mid-day low volume periods when Squid Ink naturally reverted toward its EMA.
+However, during high volatility shocks, the static thresholds sometimes triggered premature entries.
+
+- **Looking back:**  
+In retrospect, the static Z-score threshold could have been dynamically adjusted based on short-term volatility regimes.
+During "quiet" periods, a lower threshold would have captured more subtle reversions, while during volatile bursts, a higher threshold would have prevented entries against breakouts.
+Additionally, integrating a short-term momentum indicator would have improved exit timing and profitability.
+Nonetheless, the EMA/volatility Z-score approach proved highly effective relative to the erratic Squid Ink market conditions.
+
+
+
+
+
+
+
 ## Picnic Basket Pairs Trading
+- **Context:** Picnic Basket 1 and Picnic Basket 2 were composite assets made up of CROISSANTS, JAMS, and DJEMBES.
+  The two baskets were highly correlated but constructed with slightly different component ratios, creating predictable spread dynamics.
+  This setup was ideal for **statistical arbitrage** through mean reversion of the spread.
+
+- **Idea:** Track the historical spread between the two baskets' midprices, model the spread as a stationary process, and trade based on extreme deviations from the historical mean.
+  Adjust trade aggressiveness based on recent volatility to avoid entering during unstable periods.
+
+- **Math:**
+Midprice estimation for each basket:
+<p align="center">
+$$
+\text{Midprice}_{\text{Basket}} = \frac{\text{Best Bid} + \text{Best Ask}}{2}
+$$
+</p>
+
+Spread calculation:
+<p align="center">
+$$
+\text{Spread}_t = \text{Midprice}_{\text{Basket1}, t} - \text{Midprice}_{\text{Basket2}, t}
+$$
+</p>
+
+Rolling Z-score of spread:
+<p align="center">
+$$
+z_t = \frac{\text{Spread}_t - \mu_{\text{Spread}}}{\sigma_{\text{Spread}}}
+$$
+$$
+\text{where } \mu_{\text{Spread}} \text{ and } \sigma_{\text{Spread}} \text{ are rolling mean and standard deviation.}
+$$
+</p>
+
+Trade triggers:
+<p align="center">
+$$ 
+z_t > \text{Upper Threshold} \text{ → Short Basket 1, Long Basket 2}
+$$
+$$ 
+z_t < \text{Lower Threshold} \text{ → Long Basket 1, Short Basket 2}
+$$
+$$
+\text{Exit trades when} |z_t| \text{falls below a small threshold, indicating mean reversion.}
+$$
+</p>
+  
+- **Profitability:**  
+Pairs trading on the baskets was consistently profitable in rounds with stable market conditions.
+The spread mean-reverted reliably, and controlling volatility exposure helped limit losses during spread widening periods.
+Profits were especially strong when using tighter exit thresholds to secure reversion gains before potential spread rebounding.
+
+- **Looking back:**  
+While the pairs trading strategy worked well, it could have been enhanced by dynamically sizing trades based on spread volatility or half-life estimation (if modeled as an Ornstein-Uhlenbeck process) of the spread mean-reversion.
+Additionally, introducing cointegration testing would have allowed for more adaptive spread selection, especially if external shocks had caused component prices (like CROISSANTS or JAMS) to decorrelate unexpectedly.
+Practically, it's computationally stressful to perform cointegration tests periodically but in a real trading environment it may be worth it. Nonetheless, static Z-score based spread trading proved highly effective in the structured environment provided by the baskets.
+
+
+
+
 ## Volcanic Rock Voucher Delta Hedging
 - **Context:** European call options were simulated as Volcanic Rock Vouchers with the underlying asset being Volcanic Rock. Vouchers were available at the following strike prices:
   9500, 9750, 10000, 10250, and 10500
