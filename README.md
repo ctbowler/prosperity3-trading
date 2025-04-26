@@ -259,13 +259,16 @@ While the Black-Scholes model was effective, I believe my implementation could h
 
 
 ## Magnificent Macarons Fair-Value Trading
-- **Context:** The Magnificent Macarons product's fundamental value was influenced by environmental factors: the sunlight index and sugar price.
-  These features created an opportunity for fair-value based trading rather than purely technical trading.
-  However, the macarons market was highly illiquid, leading to sharp, sudden price jumps and spread gaps.
+- **Context:**  
+The price of Magnificent Macarons was linked to two environmental factors — the sunlight index and sugar price — which made it possible to estimate a rough fair value at any time.
+Instead of just reacting to price moves like in pure technical trading, I could build a model that tried to predict what macarons "should" be worth based on external data.
+The problem was that the macaron market was really illiquid, which meant sharp price jumps and big gaps in the order book happened a lot.
 
-- **Idea:** Perform linear regression on macarons with sugar and sunlight and estimate the theoretical fair value of macarons.
-  Enter long or short positions when the observed market mid-price significantly deviated from the fair value.
-  Use momentum slope detection to avoid trading against strong market trends during rapid moves.
+- **Idea:**  
+I built a simple fair-value model by running a linear regression of macaron prices against sunlight and sugar levels.
+Whenever the actual market mid-price got too far above or below the estimated fair value, I entered trades expecting a reversion.
+To avoid getting stuck during big breakout moves, I added a momentum slope filter — only trading when momentum wasn’t fighting against the mean-reversion idea.
+
 
 - **Math:**
 Fair value model (given):
